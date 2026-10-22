@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Döviz Çevirici</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .converter-card {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; text-align: center; color: var(--primary); }
+
+        .group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        .swap-container {
+            display: flex;
+            justify-content: center;
+            margin: -0.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .swap-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .swap-btn:hover { transform: rotate(180deg); }
+
+        .result {
+            background: #eff6ff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="converter-card">
+    <h1>Döviz Çevirici</h1>
+    
+    <div class="group">
+        <label for="amount">Miktar</label>
+        <input type="number" id="amount" value="100" min="0">
+    </div>
+
+    <div class="group">
+        <label for="from">Kaynak Para Birimi</label>
+        <select id="from">
+            <option value="TRY">TRY - Türk Lirası</option>
+            <option value="USD" selected>USD - Amerikan Doları</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - İngiliz Sterlini</option>
+        </select>
+    </div>
+
+    <div class="swap-container">
+        <button class="swap-btn" id="swap" title="Değiştir">⇅</button>
+    </div>
+
+    <div class="group">
+        <label for="to">Hedef Para Birimi</label>
+        <select id="to">
+            <option value="TRY" selected>TRY - Türk Lirası</option>
+            <option value="USD">USD - Amerikan Doları</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - İngiliz Sterlini</option>
+        </select>
+    </div>
+
+    <div class="result" id="result">---</div>
+</div>
+
+<script>
+    const rates = {
+        USD: { USD: 1, TRY: 34.15, EUR: 0.92, GBP: 0.77 },
+        TRY: { USD: 0.029, TRY: 1, EUR: 0.027, GBP: 0.023 },
+        EUR: { USD: 1.09, TRY: 37.20, EUR: 1, GBP: 0.84 },
+        GBP: { USD: 1.30, TRY: 44.40, EUR: 1.19, GBP: 1 }
+    };
+
+    const amountInput = document.getElementById('amount');
+    const fromSelect = document.getElementById('from');
+    const toSelect = document.getElementById('to');
+    const swapBtn = document.getElementById('swap');
+    const resultDiv = document.getElementById('result');
+
+    function convert() {
+        const amount = parseFloat(amountInput.value);
+        const from = fromSelect.value;
+        const to = toSelect.value;
+
+        if (isNaN(amount)) {
+            resultDiv.innerText = "Lütfen geçerli bir miktar girin.";
+            return;
+        }
+
+        const rate = rates[from][to];
+        const converted = (amount * rate).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        resultDiv.innerText = `${converted} ${to}`;
+    }
+
+    swapBtn.addEventListener('click', () => {
+        const temp = fromSelect.value;
+        fromSelect.value = toSelect.value;
+        toSelect.value = temp;
+        convert();
+    });
+
+    [amountInput, fromSelect, toSelect].forEach(el => {
+        el.addEventListener('input', convert);
+    });
+
+    // Initial run
+    convert();
+</script>
+
+</body>
+</html>
